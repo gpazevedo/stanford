@@ -15,7 +15,7 @@ resource "aws_amplify_app" "frontend" {
           commands:
             - npm run build
       artifacts:
-        baseDirectory: frontend/.next
+        baseDirectory: frontend/out
         files:
           - '**/*'
       cache:
@@ -35,7 +35,7 @@ resource "aws_amplify_branch" "main" {
   app_id      = aws_amplify_app.frontend.id
   branch_name = var.github_branch
 
-  framework = "Next.js - SSR"
+  framework = "Next.js - SSG"
   stage     = "PRODUCTION"
 
   enable_auto_build = true
