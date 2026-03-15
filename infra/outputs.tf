@@ -23,3 +23,8 @@ output "api_endpoint" {
 output "frontend_url" {
   value = module.amplify.frontend_url
 }
+
+output "ci_role_arn" {
+  description = "IAM role ARN for GitHub Actions — add as GitHub secret AWS_OIDC_ROLE_ARN"
+  value       = module.github_oidc.role_arn
+}
