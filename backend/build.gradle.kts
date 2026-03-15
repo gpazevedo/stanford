@@ -7,5 +7,11 @@ plugins {
 subprojects {
     repositories { mavenCentral() }
     tasks.withType<JavaCompile> { options.release = 25 }
-    tasks.withType<Test> { useJUnitPlatform() }
+    tasks.withType<Test> {
+        useJUnitPlatform()
+        jvmArgs(
+            "--add-opens=java.base/java.lang=ALL-UNNAMED",
+            "-Dnet.bytebuddy.experimental=true"
+        )
+    }
 }

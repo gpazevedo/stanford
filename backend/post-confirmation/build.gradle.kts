@@ -12,14 +12,6 @@ dependencies {
     testImplementation("org.assertj:assertj-core:3.26.0")
 }
 
-tasks.test {
-    jvmArgs(
-        "-XX:+EnableDynamicAgentLoading",
-        "--add-opens=java.base/java.lang=ALL-UNNAMED",
-        "-Dnet.bytebuddy.experimental=true"
-    )
-}
-
 tasks.shadowJar {
     archiveClassifier = ""
     mergeServiceFiles()
