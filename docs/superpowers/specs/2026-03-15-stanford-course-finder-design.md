@@ -22,15 +22,16 @@ Fully serverless — two AWS Lambda functions backed by API Gateway, with a Reac
 
 | Component | Technology |
 | --- | --- |
-| API Lambda | Spring Boot 4 + Spring AI 2 (Java 21, SnapStart) |
-| Ingestion Lambda | Java 21, EventBridge weekly trigger |
-| Post-Confirmation Lambda | Java 21, Cognito trigger — assigns `students` group |
+| API Lambda | Spring Boot 4 + Spring AI 2 (Java 25) |
+| Ingestion Lambda | Java 25, EventBridge weekly trigger |
+| Post-Confirmation Lambda | Java 25, Cognito trigger — assigns `students` group |
 | Frontend | React / Next.js on AWS Amplify |
 | Auth | AWS Cognito (self-registration, email verification) |
 | Vector Store | AWS S3 Vectors |
 | Embeddings + LLM | Amazon Bedrock — model IDs configurable via AppConfig |
 | Database | Amazon DynamoDB (on-demand billing) |
 | Configuration | AWS AppConfig (feature flags + model selection) |
+| Observability | AWS X-Ray, CloudWatch Logs/Alarms/Dashboard, SNS |
 | Container Registry | Amazon ECR (images tagged by git SHA + semver) |
 | IaC | Terraform (S3 backend, versioned, native S3 locking) |
 
@@ -375,11 +376,11 @@ All resources deployed to `us-east-1` (configured via `var.aws_region`, default 
 
 ### Backend
 
-Terraform state is stored in S3 with native S3 locking (Terraform ≥ 1.10). No DynamoDB table is required — S3 conditional writes enforce atomic state updates.
+Terraform state is stored in S3 with native S3 locking (Terraform ~> 1.11). No DynamoDB table is required — S3 conditional writes enforce atomic state updates.
 
 ```hcl
 terraform {
-  required_version = ">= 1.10"
+  required_version = "~> 1.11"
 
   backend "s3" {
     bucket       = "stanford-courses-tfstate"
@@ -405,6 +406,7 @@ API Gateway HTTP API default throttling: 100 req/sec burst, 50 req/sec steady-st
 - `bedrock:InvokeModel` (any model — model ID comes from AppConfig)
 - `s3vectors:QueryVectors`, `GetVectors`
 - `appconfig:GetLatestConfiguration`, `appconfig:StartConfigurationSession`
+- `xray:PutTraceSegments`, `xray:PutTelemetryRecords`
 
 **Ingestion Lambda role:**
 
@@ -413,6 +415,8 @@ API Gateway HTTP API default throttling: 100 req/sec burst, 50 req/sec steady-st
 - `bedrock:InvokeModel` (any model — model ID comes from AppConfig)
 - `s3vectors:PutVectors`, `DeleteVectors`
 - `appconfig:GetLatestConfiguration`, `appconfig:StartConfigurationSession`
+- `xray:PutTraceSegments`, `xray:PutTelemetryRecords`
+- `cloudwatch:PutMetricData` (custom ingestion metrics)
 
 **Post-Confirmation Lambda role:**
 
@@ -420,7 +424,54 @@ API Gateway HTTP API default throttling: 100 req/sec burst, 50 req/sec steady-st
 
 ---
 
-## 11. CI/CD (GitHub Actions)
+## 11. Observability
+
+All observability infrastructure is provisioned via Terraform in the `modules/observability` module.
+
+### Structured Logging
+
+All Lambda functions emit structured JSON logs to CloudWatch Logs. Log groups are created explicitly with a 30-day retention policy. Log fields include: `requestId`, `level`, `message`, `durationMs`, and domain-specific context (e.g. `courseId`, `userId`, `modelId`).
+
+### Distributed Tracing (AWS X-Ray)
+
+X-Ray active tracing is enabled on all Lambda functions and API Gateway. The Spring Boot API Lambda uses the AWS X-Ray SDK to create subsegments for: Bedrock calls, S3 Vectors queries, and DynamoDB operations. This provides end-to-end traces for every search and application request.
+
+### Metrics & Alarms
+
+CloudWatch Alarms notify an SNS topic (email subscription) when:
+
+| Alarm | Threshold |
+| --- | --- |
+| API Lambda error rate | > 5% over 5 minutes |
+| API Lambda P99 duration | > 10 seconds over 5 minutes |
+| Ingestion Lambda errors | ≥ 1 error per invocation |
+| API Gateway 5xx rate | > 1% over 5 minutes |
+
+### AppConfig Automatic Rollback
+
+The API Lambda error rate alarm is wired to the AppConfig deployment as a rollback trigger. If a new AppConfig deployment causes the error rate alarm to breach, AppConfig automatically rolls back to the previous configuration version.
+
+### CloudWatch Dashboard
+
+A single operational dashboard named `stanford-courses-prod` displays:
+
+- API Lambda: invocations, error rate, P50/P99 duration
+- Ingestion Lambda: last invocation status, duration, courses ingested (custom metric)
+- DynamoDB: consumed read/write capacity units per table
+- API Gateway: request count, 4xx/5xx rates
+
+### IAM additions
+
+**API Lambda role** additionally requires:
+- `xray:PutTraceSegments`, `xray:PutTelemetryRecords`
+
+**Ingestion Lambda role** additionally requires:
+- `xray:PutTraceSegments`, `xray:PutTelemetryRecords`
+- `cloudwatch:PutMetricData` (for custom ingestion metrics)
+
+---
+
+## 12. CI/CD (GitHub Actions)
 
 ### AWS Authentication
 
