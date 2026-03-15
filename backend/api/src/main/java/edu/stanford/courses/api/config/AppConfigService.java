@@ -48,7 +48,7 @@ public class AppConfigService {
                 GetLatestConfigurationRequest.builder().configurationToken(configToken).build());
         } catch (software.amazon.awssdk.services.appconfigdata.model.ResourceNotFoundException |
                  software.amazon.awssdk.services.appconfigdata.model.BadRequestException e) {
-            // Stale token — start a new session and retry once
+            // AppConfig uses BadRequestException for expired session tokens (not just config bugs)
             configToken = client.startConfigurationSession(
                 StartConfigurationSessionRequest.builder()
                     .applicationIdentifier(applicationId)

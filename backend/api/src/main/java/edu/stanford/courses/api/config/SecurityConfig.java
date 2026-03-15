@@ -5,11 +5,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Configuration
 @EnableWebSecurity
@@ -35,8 +35,8 @@ public class SecurityConfig {
             var groups = jwt.getClaimAsStringList("cognito:groups");
             if (groups == null) return List.of();
             return groups.stream()
-                .map(SimpleGrantedAuthority::new)
-                .collect(Collectors.toList());
+                .<GrantedAuthority>map(SimpleGrantedAuthority::new)
+                .toList();
         });
         return converter;
     }
