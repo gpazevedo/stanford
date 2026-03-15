@@ -6,6 +6,8 @@ import org.springframework.stereotype.Repository;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.*;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -52,15 +54,20 @@ public class UserRepository {
 
     public Map<String, User> findAllByIds(Set<String> ids) {
         if (ids.isEmpty()) return Map.of();
-        var keys = ids.stream()
+        var result = new HashMap<String, User>();
+        var pending = ids.stream()
             .map(id -> Map.of("userId", AttributeValue.fromS(id)))
-            .toList();
-        return dynamo.batchGetItem(BatchGetItemRequest.builder()
-            .requestItems(Map.of(table, KeysAndAttributes.builder().keys(keys).build()))
-            .build())
-            .responses().getOrDefault(table, List.of())
-            .stream().map(this::toItem)
-            .collect(Collectors.toMap(User::userId, u -> u));
+            .collect(Collectors.toCollection(ArrayList::new));
+        while (!pending.isEmpty()) {
+            var resp = dynamo.batchGetItem(BatchGetItemRequest.builder()
+                .requestItems(Map.of(table, KeysAndAttributes.builder().keys(pending).build()))
+                .build());
+            resp.responses().getOrDefault(table, List.of())
+                .forEach(item -> { var u = toItem(item); result.put(u.userId(), u); });
+            var unprocessed = resp.unprocessedKeys().get(table);
+            pending = unprocessed != null ? new ArrayList<>(unprocessed.keys()) : new ArrayList<>();
+        }
+        return result;
     }
 
     private User toItem(Map<String, AttributeValue> item) {

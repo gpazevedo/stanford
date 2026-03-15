@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.*;
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -65,13 +66,21 @@ public class ApplicationRepository {
 
     /** Admin: count APPLIED applications per courseId via courseId-index GSI. */
     public Map<String, Long> countAppliedByCourse() {
-        return dynamo.scan(ScanRequest.builder().tableName(table)
-            .indexName("courseId-index")
-            .filterExpression("#s = :applied")
-            .expressionAttributeNames(Map.of("#s", "status"))
-            .expressionAttributeValues(Map.of(":applied", AttributeValue.fromS("APPLIED")))
-            .build()).items().stream()
-            .collect(Collectors.groupingBy(i -> i.get("courseId").s(), Collectors.counting()));
+        var counts = new HashMap<String, Long>();
+        Map<String, AttributeValue> lastKey = null;
+        do {
+            var req = ScanRequest.builder().tableName(table)
+                .indexName("courseId-index")
+                .filterExpression("#s = :applied")
+                .expressionAttributeNames(Map.of("#s", "status"))
+                .expressionAttributeValues(Map.of(":applied", AttributeValue.fromS("APPLIED")));
+            if (lastKey != null) req.exclusiveStartKey(lastKey);
+            var resp = dynamo.scan(req.build());
+            resp.items().forEach(item ->
+                counts.merge(item.get("courseId").s(), 1L, Long::sum));
+            lastKey = resp.lastEvaluatedKey().isEmpty() ? null : resp.lastEvaluatedKey();
+        } while (lastKey != null);
+        return counts;
     }
 
     /** Admin: list APPLIED applicants for a course. */
