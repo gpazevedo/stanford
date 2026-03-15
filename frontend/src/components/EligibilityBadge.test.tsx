@@ -14,6 +14,6 @@ describe('EligibilityBadge', () => {
 
   it('shows singular prereq when only one missing', () => {
     render(<EligibilityBadge canApply={false} missingPrereqs={['CS106B']} />);
-    expect(screen.getByText(/Missing 1 prereq/i)).toBeInTheDocument();
+    expect(screen.getByText(/Missing 1 prereq$/i)).toBeInTheDocument();
   });
 });
