@@ -35,6 +35,8 @@ module "cognito" {
   source       = "./modules/cognito"
   project_name = var.project_name
   environment  = var.environment
+
+  post_confirmation_lambda_arn = module.lambda.post_confirmation_function_arn
 }
 
 module "dynamodb" {

@@ -66,11 +66,6 @@ resource "aws_lambda_function" "post_confirmation" {
   timeout       = 10
   memory_size   = 256
 
-  environment {
-    variables = {
-      USER_POOL_ID = var.user_pool_id
-    }
-  }
 }
 
 # Cognito permission to invoke post-confirmation Lambda
