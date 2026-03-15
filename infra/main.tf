@@ -45,3 +45,9 @@ module "ecr" {
   project_name = var.project_name
   environment  = var.environment
 }
+
+module "appconfig" {
+  source       = "./modules/appconfig"
+  project_name = var.project_name
+  environment  = var.environment
+}
