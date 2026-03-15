@@ -51,3 +51,9 @@ module "appconfig" {
   project_name = var.project_name
   environment  = var.environment
 }
+
+module "s3vectors" {
+  source       = "./modules/s3vectors"
+  project_name = var.project_name
+  environment  = var.environment
+}
