@@ -27,7 +27,7 @@ describe('SearchBar', () => {
 
   it('disables button while loading', () => {
     render(<SearchBar onSearch={vi.fn()} loading={true} />);
-    expect(screen.getByRole('button', { name: /search/i })).toBeDisabled();
+    expect(screen.getByRole('button', { name: /searching/i })).toBeDisabled();
   });
 
   it('does not call onSearch with empty query', async () => {
