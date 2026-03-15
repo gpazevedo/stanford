@@ -42,3 +42,14 @@ variable "alarm_email" {
   description = "Email address for CloudWatch alarm notifications"
   type        = string
 }
+
+variable "github_org" {
+  description = "GitHub organisation (or user) that owns the repository"
+  type        = string
+}
+
+variable "create_oidc_provider" {
+  description = "Set to false if the GitHub OIDC provider already exists in this AWS account"
+  type        = bool
+  default     = true
+}
