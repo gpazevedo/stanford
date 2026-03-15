@@ -21,7 +21,7 @@ Fully serverless — two AWS Lambda functions backed by API Gateway, with a Reac
 ### Components
 
 | Component | Technology |
-|---|---|
+| --- | --- |
 | API Lambda | Spring Boot 4 + Spring AI 2 (Java 21, SnapStart) |
 | Ingestion Lambda | Java 21, EventBridge weekly trigger |
 | Post-Confirmation Lambda | Java 21, Cognito trigger — assigns `students` group |
@@ -106,7 +106,7 @@ stanford-courses/
 ### DynamoDB: `courses`
 
 | Attribute | Type | Description |
-|---|---|---|
+| --- | --- | --- |
 | `courseId` (PK) | String | e.g. `CS229` |
 | `title` | String | Course title |
 | `description` | String | Full course description |
@@ -121,7 +121,7 @@ stanford-courses/
 ### DynamoDB: `applications`
 
 | Attribute | Type | Description |
-|---|---|---|
+| --- | --- | --- |
 | `userId` (PK) | String | Cognito sub |
 | `courseId` (SK) | String | e.g. `CS229` |
 | `status` | String | `APPLIED` \| `WITHDRAWN` (soft delete — record is updated, not removed) |
@@ -133,7 +133,7 @@ stanford-courses/
 ### DynamoDB: `users`
 
 | Attribute | Type | Description |
-|---|---|---|
+| --- | --- | --- |
 | `userId` (PK) | String | Cognito sub |
 | `email` | String | From Cognito |
 | `name` | String | Display name |
@@ -145,7 +145,7 @@ Profile is auto-created on first authenticated request with `completedCourseIds:
 ### S3 Vectors: `course-embeddings`
 
 | Field | Type | Description |
-|---|---|---|
+| --- | --- | --- |
 | `vectorKey` | String | `courseId` (matches DynamoDB PK) |
 | `vector` | float[1024] | Embedding vector (dimension matches configured embedding model) |
 | `metadata` | Map | `{title, units, quarter}` |
@@ -429,7 +429,7 @@ GitHub Actions authenticates to AWS via **OIDC federation** (no long-lived stati
 ### On Pull Request
 
 | Changed path | Action |
-|---|---|
+| --- | --- |
 | `backend/` | Build + test (`./gradlew build test`) — required status check |
 | `infra/` | `terraform validate` + `terraform plan` — plan posted as PR comment |
 | `frontend/` | Amplify auto-generates PR preview URL |
@@ -437,7 +437,7 @@ GitHub Actions authenticates to AWS via **OIDC federation** (no long-lived stati
 ### On Merge to Main
 
 | Changed path | Action |
-|---|---|
+| --- | --- |
 | `backend/` | Docker build → push to ECR (tagged with git SHA + semver) → `aws lambda update-function-code` → `aws lambda publish-version` → `aws lambda update-alias --name prod --function-version $NEW_VERSION` |
 | `infra/` | `terraform apply -auto-approve` |
 | `frontend/` | Amplify auto-deploys |
@@ -453,7 +453,7 @@ Pipelines use path filters — a frontend-only change does not trigger backend C
 ## 12. Frontend Screens
 
 | Screen | Description |
-|---|---|
+| --- | --- |
 | **Search** | Natural language query input; results show eligibility badge (`Eligible` / `Missing prereqs`) and inline Apply button |
 | **Course Detail** | Full details; prerequisites listed with ✓/✗ per item; `canApply=false` shows blocked message with missing prereqs; `prereqNote` shown as informational text |
 | **My Applications** | List of applied courses (status `APPLIED`) with Withdraw button |
