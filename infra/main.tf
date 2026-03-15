@@ -5,6 +5,9 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 6.36"
     }
+    archive = {
+      source = "hashicorp/archive"
+    }
   }
 
   backend "s3" {
@@ -56,4 +59,28 @@ module "s3vectors" {
   source       = "./modules/s3vectors"
   project_name = var.project_name
   environment  = var.environment
+}
+
+data "aws_caller_identity" "current" {}
+
+module "lambda" {
+  source         = "./modules/lambda"
+  project_name   = var.project_name
+  environment    = var.environment
+  aws_region     = var.aws_region
+  aws_account_id = data.aws_caller_identity.current.account_id
+
+  courses_table_arn      = module.dynamodb.courses_table_arn
+  applications_table_arn = module.dynamodb.applications_table_arn
+  users_table_arn        = module.dynamodb.users_table_arn
+  user_pool_arn          = module.cognito.user_pool_arn
+  user_pool_id           = module.cognito.user_pool_id
+
+  appconfig_application_id = module.appconfig.application_id
+  appconfig_environment_id = module.appconfig.environment_id
+  appconfig_profile_id     = module.appconfig.configuration_profile_id
+
+  api_image_uri               = "${module.ecr.api_repo_url}:placeholder"
+  ingestion_image_uri         = "${module.ecr.ingestion_repo_url}:placeholder"
+  post_confirmation_image_uri = "${module.ecr.post_confirmation_repo_url}:placeholder"
 }
