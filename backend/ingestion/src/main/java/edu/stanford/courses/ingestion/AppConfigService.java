@@ -31,18 +31,20 @@ public class AppConfigService {
         if (cached != null && Instant.now().isBefore(cacheExpiry)) return cached;
 
         if (configToken == null) {
-            configToken = client.startConfigurationSession(
-                StartConfigurationSessionRequest.builder()
-                    .applicationIdentifier(applicationId)
-                    .environmentIdentifier(environmentId)
-                    .configurationProfileIdentifier(configProfileId)
-                    .build()
-            ).initialConfigurationToken();
+            configToken = startSession();
         }
 
-        var response = client.getLatestConfiguration(
-            GetLatestConfigurationRequest.builder()
-                .configurationToken(configToken).build());
+        GetLatestConfigurationResponse response;
+        try {
+            response = client.getLatestConfiguration(
+                GetLatestConfigurationRequest.builder()
+                    .configurationToken(configToken).build());
+        } catch (ResourceNotFoundException | BadRequestException e) {
+            configToken = startSession();
+            response = client.getLatestConfiguration(
+                GetLatestConfigurationRequest.builder()
+                    .configurationToken(configToken).build());
+        }
         configToken = response.nextPollConfigurationToken();
 
         var content = response.configuration().asUtf8String();
@@ -56,7 +58,19 @@ public class AppConfigService {
         if (cached == null) {
             throw new RuntimeException("AppConfig returned empty configuration on first fetch");
         }
-        cacheExpiry = Instant.now().plusSeconds(TTL_SECONDS);
+        Integer nextPoll = response.nextPollIntervalInSeconds();
+        long pollSeconds = Math.max(TTL_SECONDS, nextPoll != null ? nextPoll : 0);
+        cacheExpiry = Instant.now().plusSeconds(pollSeconds);
         return cached;
+    }
+
+    private String startSession() {
+        return client.startConfigurationSession(
+            StartConfigurationSessionRequest.builder()
+                .applicationIdentifier(applicationId)
+                .environmentIdentifier(environmentId)
+                .configurationProfileIdentifier(configProfileId)
+                .build()
+        ).initialConfigurationToken();
     }
 }
