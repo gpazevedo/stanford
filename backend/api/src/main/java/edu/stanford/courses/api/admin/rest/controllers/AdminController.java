@@ -14,12 +14,12 @@ public class AdminController {
     public AdminController(AdminService adminService) { this.adminService = adminService; }
 
     @GetMapping("/courses")
-    List<AdminCourseVM> listCourses() {
+    public List<AdminCourseVM> listCourses() {
         return adminService.listCourses();
     }
 
     @GetMapping("/courses/{courseId}/applicants")
-    List<AdminService.ApplicantView> listApplicants(@PathVariable String courseId) {
+    public List<AdminService.ApplicantView> listApplicants(@PathVariable String courseId) {
         return adminService.listApplicants(courseId);
     }
 }
