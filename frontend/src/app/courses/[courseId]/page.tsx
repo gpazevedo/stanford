@@ -80,7 +80,9 @@ export default function CourseDetailPage({ params }: Props) {
           </button>
         ) : (
           <p className="text-sm text-red-600 font-medium">
-            Prerequisites not met — complete {missingPrereqs.join(', ')} before applying.
+            {missingPrereqs.length > 0
+              ? `Prerequisites not met — complete ${missingPrereqs.join(', ')} before applying.`
+              : 'Prerequisites not met.'}
           </p>
         )}
       </div>

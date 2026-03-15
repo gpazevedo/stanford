@@ -67,4 +67,20 @@ describe('CourseDetailPage', () => {
     renderPage();
     await screen.findByText(/CS229 and CS109/);
   });
+
+  it('shows Apply button when canApply is true and not applied', async () => {
+    const { getCourse } = await import('@/lib/api');
+    vi.mocked(getCourse).mockResolvedValueOnce({ ...course, canApply: true, applied: false });
+    render(<CourseDetailPage params={Promise.resolve({ courseId: 'CS231N' })} />);
+    await screen.findByText('Deep Learning for Vision');
+    expect(screen.getByRole('button', { name: /apply/i })).toBeInTheDocument();
+  });
+
+  it('shows Applied badge when already applied', async () => {
+    const { getCourse } = await import('@/lib/api');
+    vi.mocked(getCourse).mockResolvedValueOnce({ ...course, canApply: false, applied: true });
+    render(<CourseDetailPage params={Promise.resolve({ courseId: 'CS231N' })} />);
+    await screen.findByText('Deep Learning for Vision');
+    expect(screen.getByText('Applied')).toBeInTheDocument();
+  });
 });
