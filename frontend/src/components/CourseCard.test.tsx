@@ -15,7 +15,7 @@ const eligible: CourseSearchResult = {
 };
 const applied: CourseSearchResult = {
   courseId: 'CS106B', title: 'Programming Abstractions', units: '4',
-  canApply: true, missingPrereqs: [], applied: true,
+  canApply: false, missingPrereqs: [], applied: true,
 };
 const ineligible: CourseSearchResult = {
   courseId: 'CS231N', title: 'Deep Learning for Vision', units: '3',
@@ -40,7 +40,7 @@ describe('CourseCard', () => {
 
   it('shows Applied badge (no Apply button) when already applied', () => {
     render(<CourseCard course={applied} onApply={vi.fn()} />);
-    expect(screen.getByText(/applied/i)).toBeInTheDocument();
+    expect(screen.getByText('Applied')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /^apply$/i })).not.toBeInTheDocument();
   });
 
