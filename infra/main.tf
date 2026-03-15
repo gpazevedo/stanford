@@ -97,3 +97,11 @@ module "api_gateway" {
   api_lambda_alias_arn        = module.lambda.api_alias_arn
   admin_authorizer_lambda_arn = module.lambda.admin_authorizer_arn
 }
+
+module "eventbridge" {
+  source       = "./modules/eventbridge"
+  project_name = var.project_name
+  environment  = var.environment
+
+  ingestion_lambda_arn = module.lambda.ingestion_function_arn
+}
