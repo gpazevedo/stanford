@@ -32,10 +32,14 @@ describe('WithdrawButton', () => {
     expect(screen.getByRole('button', { name: /withdraw/i })).toBeDisabled();
   });
 
-  it('confirm button is also disabled when loading becomes true after dialog opens', async () => {
+  it('confirm and cancel buttons are disabled when loading is true during confirmation', async () => {
     const user = userEvent.setup();
-    render(<WithdrawButton courseId="CS229" onWithdraw={vi.fn()} loading />);
-    // When loading=true the initial button is disabled — confirm dialog never opens
-    expect(screen.queryByRole('button', { name: /confirm/i })).not.toBeInTheDocument();
+    // Start not loading, open the confirm dialog
+    const { rerender } = render(<WithdrawButton courseId="CS229" onWithdraw={vi.fn()} loading={false} />);
+    await user.click(screen.getByRole('button', { name: /withdraw/i }));
+    // Now loading becomes true (e.g. withdrawal started elsewhere)
+    rerender(<WithdrawButton courseId="CS229" onWithdraw={vi.fn()} loading={true} />);
+    expect(screen.getByRole('button', { name: /confirm/i })).toBeDisabled();
+    expect(screen.getByRole('button', { name: /cancel/i })).toBeDisabled();
   });
 });

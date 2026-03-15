@@ -6,7 +6,7 @@ interface Props {
 }
 
 export function PrereqList({ prerequisites }: Props) {
-  if (prerequisites.length === 0) return null;
+  if (!prerequisites?.length) return null;
   return (
     <ul className="space-y-1">
       {prerequisites.map(p => (
