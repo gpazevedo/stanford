@@ -1,3 +1,5 @@
+# Build context must be the multi-module backend root directory.
+# Example: docker build -f api/Dockerfile .. (from backend/)
 FROM public.ecr.aws/amazoncorretto/amazoncorretto:25-al2023 AS build
 WORKDIR /build
 COPY . .

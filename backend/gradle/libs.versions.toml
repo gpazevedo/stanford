@@ -1,8 +1,7 @@
 [versions]
 spring-boot        = "4.0.3"
 spring-ai          = "2.0.0-M2"
-aws-sdk            = "2.30.0"
-aws-sdk-s3vectors  = "2.32.0"
+aws-sdk            = "2.32.0"
 lambda-java-core   = "1.2.3"
 lambda-java-events = "3.14.0"
 junit              = "5.11.0"
@@ -13,7 +12,7 @@ jackson            = "2.18.0"
 [libraries]
 aws-dynamodb            = { module = "software.amazon.awssdk:dynamodb",                version.ref = "aws-sdk" }
 aws-bedrock-runtime     = { module = "software.amazon.awssdk:bedrockruntime",          version.ref = "aws-sdk" }
-aws-s3vectors           = { module = "software.amazon.awssdk:s3vectors",               version.ref = "aws-sdk-s3vectors" }
+aws-s3vectors           = { module = "software.amazon.awssdk:s3vectors",               version.ref = "aws-sdk" }
 aws-appconfig-data      = { module = "software.amazon.awssdk:appconfigdata",           version.ref = "aws-sdk" }
 aws-cognito             = { module = "software.amazon.awssdk:cognitoidentityprovider", version.ref = "aws-sdk" }
 lambda-java-core        = { module = "com.amazonaws:aws-lambda-java-core",   version.ref = "lambda-java-core" }
