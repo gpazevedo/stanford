@@ -4,9 +4,9 @@
 
 **Goal:** Provision all AWS infrastructure for the Stanford Course Finder using Terraform with S3 native state locking.
 
-**Architecture:** Terraform modules for each AWS service (Cognito, DynamoDB, ECR, AppConfig, Lambda, API Gateway, EventBridge, Amplify, Observability). Bootstrap creates the S3 state bucket first using a local backend, then all other resources are managed via remote S3 state with native locking (`use_lockfile = true`, Terraform ~> 1.11).
+**Architecture:** Terraform modules for each AWS service (Cognito, DynamoDB, ECR, AppConfig, Lambda, API Gateway, EventBridge, Amplify, Observability). Bootstrap creates the S3 state bucket first using a local backend, then all other resources are managed via remote S3 state with native locking (`use_lockfile = true`, Terraform ~> 1.14).
 
-**Tech Stack:** Terraform ~> 1.11, AWS provider ~> 5.90, AWS CLI v2, `us-east-1` region.
+**Tech Stack:** Terraform ~> 1.14, AWS provider ~> 6.36, AWS CLI v2, `us-east-1` region.
 
 **Spec:** `docs/superpowers/specs/2026-03-15-stanford-course-finder-design.md`
 
@@ -14,8 +14,8 @@
 
 ## Prerequisites
 
-- Terraform ~> 1.11 installed (`terraform version`)
-- AWS provider ~> 5.90 (managed via Terraform required_providers)
+- Terraform ~> 1.14 installed (`terraform version`)
+- AWS provider ~> 6.36 (managed via Terraform required_providers)
 - AWS CLI v2 configured with credentials for a **dev** account (`aws sts get-caller-identity`)
 - An AWS account with permissions to create: S3, DynamoDB, Cognito, Lambda, ECR, API Gateway, AppConfig, EventBridge, Amplify, IAM roles
 - A GitHub repo for the project (needed for Amplify connection)
@@ -104,11 +104,11 @@ variable "state_bucket_name" {
 
 ```hcl
 terraform {
-  required_version = "~> 1.11"
+  required_version = "~> 1.14"
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 5.90"
+      version = "~> 6.36"
     }
   }
 }
@@ -259,11 +259,11 @@ variable "github_access_token" {
 
 ```hcl
 terraform {
-  required_version = "~> 1.11"
+  required_version = "~> 1.14"
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 5.90"
+      version = "~> 6.36"
     }
   }
 
@@ -948,7 +948,7 @@ git commit -m "feat(infra): add AppConfig with initial model and feature flag co
 - Create: `infra/modules/s3vectors/variables.tf`
 - Create: `infra/modules/s3vectors/outputs.tf`
 
-> **Note:** S3 Vectors support in the Terraform AWS provider requires version ~> 5.80+. If `aws_s3vectors_vector_bucket` is not available in the installed provider version, create the vector bucket and index using the AWS CLI (see fallback steps below).
+> **Note:** S3 Vectors support in the Terraform AWS provider requires version ~> 6.0+. If `aws_s3vectors_vector_bucket` is not available in the installed provider version, create the vector bucket and index using the AWS CLI (see fallback steps below).
 
 - [ ] **Step 1: Create `infra/modules/s3vectors/variables.tf`**
 

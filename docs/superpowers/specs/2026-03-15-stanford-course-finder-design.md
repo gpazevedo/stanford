@@ -376,11 +376,11 @@ All resources deployed to `us-east-1` (configured via `var.aws_region`, default 
 
 ### Backend
 
-Terraform state is stored in S3 with native S3 locking (Terraform ~> 1.11). No DynamoDB table is required — S3 conditional writes enforce atomic state updates.
+Terraform state is stored in S3 with native S3 locking (Terraform ~> 1.14). No DynamoDB table is required — S3 conditional writes enforce atomic state updates.
 
 ```hcl
 terraform {
-  required_version = "~> 1.11"
+  required_version = "~> 1.14"
 
   backend "s3" {
     bucket       = "stanford-courses-tfstate"
