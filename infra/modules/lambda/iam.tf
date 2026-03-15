@@ -87,6 +87,22 @@ resource "aws_iam_role_policy" "api_appconfig" {
   })
 }
 
+resource "aws_iam_role_policy" "api_xray" {
+  name = "xray"
+  role = aws_iam_role.api.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Action = [
+        "xray:PutTraceSegments",
+        "xray:PutTelemetryRecords"
+      ]
+      Resource = "*"
+    }]
+  })
+}
+
 # ── Ingestion Lambda ──────────────────────────────────────────────────────────
 
 resource "aws_iam_role" "ingestion" {
@@ -157,6 +173,35 @@ resource "aws_iam_role_policy" "ingestion_appconfig" {
         "appconfig:StartConfigurationSession"
       ]
       Resource = "arn:aws:appconfig:${var.aws_region}:${var.aws_account_id}:application/${var.appconfig_application_id}/environment/${var.appconfig_environment_id}/configuration/${var.appconfig_profile_id}"
+    }]
+  })
+}
+
+resource "aws_iam_role_policy" "ingestion_xray" {
+  name = "xray"
+  role = aws_iam_role.ingestion.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Action = [
+        "xray:PutTraceSegments",
+        "xray:PutTelemetryRecords"
+      ]
+      Resource = "*"
+    }]
+  })
+}
+
+resource "aws_iam_role_policy" "ingestion_cloudwatch" {
+  name = "cloudwatch"
+  role = aws_iam_role.ingestion.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect   = "Allow"
+      Action   = ["cloudwatch:PutMetricData"]
+      Resource = "*"
     }]
   })
 }
