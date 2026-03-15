@@ -15,3 +15,7 @@ output "ecr_api_repo_url" {
 output "ecr_ingestion_repo_url" {
   value = module.ecr.ingestion_repo_url
 }
+
+output "api_endpoint" {
+  value = module.api_gateway.api_endpoint
+}

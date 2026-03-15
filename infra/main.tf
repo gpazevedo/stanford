@@ -84,3 +84,16 @@ module "lambda" {
   ingestion_image_uri         = "${module.ecr.ingestion_repo_url}:placeholder"
   post_confirmation_image_uri = "${module.ecr.post_confirmation_repo_url}:placeholder"
 }
+
+module "api_gateway" {
+  source         = "./modules/api-gateway"
+  project_name   = var.project_name
+  environment    = var.environment
+  aws_region     = var.aws_region
+  aws_account_id = data.aws_caller_identity.current.account_id
+
+  cognito_user_pool_endpoint  = module.cognito.user_pool_endpoint
+  cognito_client_id           = module.cognito.client_id
+  api_lambda_alias_arn        = module.lambda.api_alias_arn
+  admin_authorizer_lambda_arn = module.lambda.admin_authorizer_arn
+}
