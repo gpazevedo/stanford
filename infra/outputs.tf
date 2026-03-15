@@ -19,3 +19,7 @@ output "ecr_ingestion_repo_url" {
 output "api_endpoint" {
   value = module.api_gateway.api_endpoint
 }
+
+output "frontend_url" {
+  value = module.amplify.frontend_url
+}

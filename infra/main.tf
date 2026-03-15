@@ -105,3 +105,18 @@ module "eventbridge" {
 
   ingestion_lambda_arn = module.lambda.ingestion_function_arn
 }
+
+module "amplify" {
+  source       = "./modules/amplify"
+  project_name = var.project_name
+  environment  = var.environment
+
+  github_owner        = var.github_owner
+  github_repo         = var.github_repo
+  github_branch       = var.github_branch
+  github_access_token = var.github_access_token
+
+  api_endpoint         = module.api_gateway.api_endpoint
+  cognito_user_pool_id = module.cognito.user_pool_id
+  cognito_client_id    = module.cognito.client_id
+}
