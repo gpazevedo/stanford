@@ -11,10 +11,12 @@ export default function ApplicationsPage() {
   const [applications, setApplications] = useState<CourseSearchResult[]>([]);
   const [loading, setLoading] = useState(true);
   const [withdrawing, setWithdrawing] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     getApplications()
       .then(setApplications)
+      .catch(() => setError('Failed to load applications.'))
       .finally(() => setLoading(false));
   }, []);
 
@@ -23,6 +25,8 @@ export default function ApplicationsPage() {
     try {
       await withdrawApplication(courseId);
       setApplications(prev => prev.filter(a => a.courseId !== courseId));
+    } catch {
+      setError('Failed to withdraw application. Please try again.');
     } finally {
       setWithdrawing(null);
     }
@@ -33,6 +37,8 @@ export default function ApplicationsPage() {
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold text-gray-900">My Applications</h1>
+
+      {error && <p className="text-sm text-red-600">{error}</p>}
 
       {applications.length === 0 ? (
         <p className="text-sm text-gray-500 py-8 text-center">
@@ -48,7 +54,7 @@ export default function ApplicationsPage() {
             >
               <div>
                 <Link
-                  href={`/courses/${app.courseId}`}
+                  href={`/courses/${encodeURIComponent(app.courseId)}`}
                   className="font-semibold text-gray-900 hover:text-blue-600"
                 >
                   {app.title}

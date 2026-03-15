@@ -13,7 +13,7 @@ export function CourseCard({ course, onApply }: Props) {
     <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm flex items-start justify-between gap-4">
       <div className="flex-1 min-w-0">
         <Link
-          href={`/courses/${course.courseId}`}
+          href={`/courses/${encodeURIComponent(course.courseId)}`}
           className="text-base font-semibold text-gray-900 hover:text-blue-600 truncate block"
         >
           {course.title}

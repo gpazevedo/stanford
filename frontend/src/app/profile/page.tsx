@@ -10,7 +10,9 @@ export default function ProfilePage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    getCompletedCourses().then(r => setCourseIds(r.courseIds));
+    getCompletedCourses()
+      .then(r => setCourseIds(r.courseIds))
+      .catch(() => setError('Failed to load completed courses.'));
   }, []);
 
   const save = useCallback(async (updated: string[]) => {
