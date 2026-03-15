@@ -25,6 +25,10 @@ resource "aws_lambda_function" "api" {
       APPCONFIG_PROFILE_ID     = var.appconfig_profile_id
     }
   }
+
+  tracing_config {
+    mode = "Active"
+  }
 }
 
 resource "aws_lambda_alias" "api_prod" {
@@ -52,6 +56,10 @@ resource "aws_lambda_function" "ingestion" {
       APPCONFIG_ENVIRONMENT_ID = var.appconfig_environment_id
       APPCONFIG_PROFILE_ID     = var.appconfig_profile_id
     }
+  }
+
+  tracing_config {
+    mode = "Active"
   }
 }
 

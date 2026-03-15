@@ -122,3 +122,23 @@ module "amplify" {
   cognito_user_pool_id = module.cognito.user_pool_id
   cognito_client_id    = module.cognito.client_id
 }
+
+module "observability" {
+  source       = "./modules/observability"
+  project_name = var.project_name
+  environment  = var.environment
+
+  alarm_email           = var.alarm_email
+  api_lambda_name       = module.lambda.api_function_name
+  ingestion_lambda_name = module.lambda.ingestion_function_name
+  api_gateway_id        = module.api_gateway.api_id
+
+  appconfig_application_id = module.appconfig.application_id
+  appconfig_environment_id = module.appconfig.environment_id
+  appconfig_profile_id     = module.appconfig.configuration_profile_id
+  appconfig_version_number = module.appconfig.initial_version_number
+
+  courses_table_name      = module.dynamodb.courses_table_name
+  applications_table_name = module.dynamodb.applications_table_name
+  users_table_name        = module.dynamodb.users_table_name
+}
