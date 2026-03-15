@@ -41,7 +41,7 @@ public class ProfileController {
 
         var user = userRepo.findOrCreate(jwt.getSubject(), jwt.getClaimAsString("email"));
         var updated = new User(user.userId(), user.email(), user.name(),
-            List.copyOf(courseIds), Instant.now().toString());
+            courseIds.stream().sorted().toList(), Instant.now().toString());
         userRepo.save(updated);
         return Map.of("courseIds", updated.completedCourseIds());
     }
