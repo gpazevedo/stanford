@@ -1,0 +1,31 @@
+[versions]
+spring-boot        = "4.0.3"
+spring-ai          = "2.0.0-M2"
+aws-sdk            = "2.30.0"
+lambda-java-core   = "1.2.3"
+lambda-java-events = "3.14.0"
+junit              = "5.11.0"
+mockito            = "5.12.0"
+jsoup              = "1.18.1"
+jackson            = "2.18.0"
+
+[libraries]
+aws-dynamodb            = { module = "software.amazon.awssdk:dynamodb",                version.ref = "aws-sdk" }
+aws-bedrock-runtime     = { module = "software.amazon.awssdk:bedrockruntime",          version.ref = "aws-sdk" }
+aws-s3vectors           = { module = "software.amazon.awssdk:s3vectors",               version.ref = "aws-sdk" }
+aws-appconfig-data      = { module = "software.amazon.awssdk:appconfigdata",           version.ref = "aws-sdk" }
+aws-cognito             = { module = "software.amazon.awssdk:cognitoidentityprovider", version.ref = "aws-sdk" }
+lambda-java-core        = { module = "com.amazonaws:aws-lambda-java-core",   version.ref = "lambda-java-core" }
+lambda-java-events      = { module = "com.amazonaws:aws-lambda-java-events", version.ref = "lambda-java-events" }
+spring-ai-bedrock       = { module = "org.springframework.ai:spring-ai-bedrock-spring-boot-starter", version.ref = "spring-ai" }
+jackson-databind        = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }
+jsoup                   = { module = "org.jsoup:jsoup", version.ref = "jsoup" }
+junit-bom               = { module = "org.junit:junit-bom",              version.ref = "junit" }
+junit-jupiter           = { module = "org.junit.jupiter:junit-jupiter",   version.ref = "junit" }
+mockito-core            = { module = "org.mockito:mockito-core",          version.ref = "mockito" }
+mockito-junit-jupiter   = { module = "org.mockito:mockito-junit-jupiter", version.ref = "mockito" }
+
+[plugins]
+spring-boot           = { id = "org.springframework.boot",        version.ref = "spring-boot" }
+spring-dep-management = { id = "io.spring.dependency-management", version = "1.1.6" }
+shadow                = { id = "com.gradleup.shadow",              version = "8.3.3" }
