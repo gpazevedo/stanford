@@ -17,7 +17,15 @@ vi.mock('next/link', () => ({
 }));
 
 import ApplicationsPage from './page';
-import { withdrawApplication } from '@/lib/api';
+import { getApplications, withdrawApplication } from '@/lib/api';
+
+beforeEach(() => {
+  vi.mocked(getApplications).mockResolvedValue([
+    { courseId: 'CS229', title: 'Machine Learning', units: '3-4',
+      canApply: false, missingPrereqs: [], applied: true },
+  ]);
+  vi.mocked(withdrawApplication).mockResolvedValue(undefined);
+});
 
 describe('ApplicationsPage', () => {
   it('lists applied courses', async () => {

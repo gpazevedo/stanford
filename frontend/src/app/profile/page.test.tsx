@@ -33,12 +33,15 @@ describe('ProfilePage', () => {
 
   it('removes a course by clicking its remove button', async () => {
     const user = userEvent.setup();
+    vi.mocked(updateCompletedCourses).mockResolvedValueOnce({ courseIds: [] });
     render(<ProfilePage />);
     await screen.findByText('CS106B');
 
     await user.click(screen.getByRole('button', { name: /remove CS106B/i }));
 
-    await waitFor(() =>
-      expect(updateCompletedCourses).toHaveBeenCalledWith([]));
+    await waitFor(() => {
+      expect(updateCompletedCourses).toHaveBeenCalledWith([]);
+      expect(screen.queryByText('CS106B')).not.toBeInTheDocument();
+    });
   });
 });
