@@ -47,8 +47,16 @@ public class CourseRepository {
     }
 
     public List<Course> findAll() {
-        return dynamo.scan(ScanRequest.builder().tableName(table).build())
-            .items().stream().map(this::toItem).toList();
+        var result = new java.util.ArrayList<Course>();
+        Map<String, AttributeValue> lastKey = null;
+        do {
+            var req = ScanRequest.builder().tableName(table);
+            if (lastKey != null) req.exclusiveStartKey(lastKey);
+            var resp = dynamo.scan(req.build());
+            resp.items().forEach(item -> result.add(toItem(item)));
+            lastKey = resp.lastEvaluatedKey().isEmpty() ? null : resp.lastEvaluatedKey();
+        } while (lastKey != null);
+        return result;
     }
 
     private Course toItem(Map<String, AttributeValue> item) {

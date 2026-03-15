@@ -32,14 +32,22 @@ public class ApplicationRepository {
     }
 
     public List<Application> findAppliedByUser(String userId) {
-        return dynamo.query(QueryRequest.builder().tableName(table)
-            .keyConditionExpression("userId = :uid")
-            .filterExpression("#s = :applied")
-            .expressionAttributeNames(Map.of("#s", "status"))
-            .expressionAttributeValues(Map.of(
-                ":uid",     AttributeValue.fromS(userId),
-                ":applied", AttributeValue.fromS("APPLIED")))
-            .build()).items().stream().map(this::toItem).toList();
+        var result = new java.util.ArrayList<Application>();
+        Map<String, AttributeValue> lastKey = null;
+        do {
+            var req = QueryRequest.builder().tableName(table)
+                .keyConditionExpression("userId = :uid")
+                .filterExpression("#s = :applied")
+                .expressionAttributeNames(Map.of("#s", "status"))
+                .expressionAttributeValues(Map.of(
+                    ":uid",     AttributeValue.fromS(userId),
+                    ":applied", AttributeValue.fromS("APPLIED")));
+            if (lastKey != null) req.exclusiveStartKey(lastKey);
+            var resp = dynamo.query(req.build());
+            resp.items().forEach(item -> result.add(toItem(item)));
+            lastKey = resp.lastEvaluatedKey().isEmpty() ? null : resp.lastEvaluatedKey();
+        } while (lastKey != null);
+        return result;
     }
 
     public void save(Application app) {
@@ -85,15 +93,23 @@ public class ApplicationRepository {
 
     /** Admin: list APPLIED applicants for a course. */
     public List<Application> findAppliedByCourse(String courseId) {
-        return dynamo.query(QueryRequest.builder().tableName(table)
-            .indexName("courseId-index")
-            .keyConditionExpression("courseId = :cid")
-            .filterExpression("#s = :applied")
-            .expressionAttributeNames(Map.of("#s", "status"))
-            .expressionAttributeValues(Map.of(
-                ":cid",     AttributeValue.fromS(courseId),
-                ":applied", AttributeValue.fromS("APPLIED")))
-            .build()).items().stream().map(this::toItem).toList();
+        var result = new java.util.ArrayList<Application>();
+        Map<String, AttributeValue> lastKey = null;
+        do {
+            var req = QueryRequest.builder().tableName(table)
+                .indexName("courseId-index")
+                .keyConditionExpression("courseId = :cid")
+                .filterExpression("#s = :applied")
+                .expressionAttributeNames(Map.of("#s", "status"))
+                .expressionAttributeValues(Map.of(
+                    ":cid",     AttributeValue.fromS(courseId),
+                    ":applied", AttributeValue.fromS("APPLIED")));
+            if (lastKey != null) req.exclusiveStartKey(lastKey);
+            var resp = dynamo.query(req.build());
+            resp.items().forEach(item -> result.add(toItem(item)));
+            lastKey = resp.lastEvaluatedKey().isEmpty() ? null : resp.lastEvaluatedKey();
+        } while (lastKey != null);
+        return result;
     }
 
     private Application toItem(Map<String, AttributeValue> item) {

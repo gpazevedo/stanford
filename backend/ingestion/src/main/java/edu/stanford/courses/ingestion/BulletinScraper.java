@@ -22,14 +22,21 @@ public class BulletinScraper {
         return Jsoup.parse(html).select(".courseleaf-block").stream()
             .map(el -> {
                 var courseId    = el.attr("data-courseid");
-                var title       = el.selectFirst(".course-title").text();
-                var description = el.selectFirst(".description").text();
-                var units       = el.selectFirst(".units").text()
-                                    .replaceAll("\\s*units?\\s*", "").trim();
-                var instructors = Arrays.stream(
-                                    el.selectFirst(".instructors").text().split(",\\s*"))
-                                    .map(String::trim).filter(s -> !s.isEmpty()).toList();
-                var quarter     = el.selectFirst(".quarters").text();
+                var titleEl     = el.selectFirst(".course-title");
+                var title       = titleEl != null ? titleEl.text() : "";
+                var descEl      = el.selectFirst(".description");
+                var description = descEl != null ? descEl.text() : "";
+                var unitsEl     = el.selectFirst(".units");
+                var units       = unitsEl != null
+                                    ? unitsEl.text().replaceAll("\\s*units?\\s*", "").trim()
+                                    : "";
+                var instEl      = el.selectFirst(".instructors");
+                var instructors = instEl != null
+                                    ? Arrays.stream(instEl.text().split(",\\s*"))
+                                        .map(String::trim).filter(s -> !s.isEmpty()).toList()
+                                    : List.<String>of();
+                var quarterEl   = el.selectFirst(".quarters");
+                var quarter     = quarterEl != null ? quarterEl.text() : "";
                 var prereqEl    = el.selectFirst(".prerequisites");
                 var prereqNote  = prereqEl != null ? prereqEl.text() : "";
                 var prerequisites = COURSE_ID_PATTERN.matcher(prereqNote).results()
