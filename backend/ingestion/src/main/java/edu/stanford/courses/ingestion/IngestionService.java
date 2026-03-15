@@ -87,30 +87,37 @@ public class IngestionService {
     }
 
     private int withdrawApplications(String courseId) {
-        var resp = dynamo.query(QueryRequest.builder()
-            .tableName(applicationsTable)
-            .indexName("courseId-index")
-            .keyConditionExpression("courseId = :cid")
-            .filterExpression("#s = :applied")
-            .expressionAttributeNames(Map.of("#s", "status"))
-            .expressionAttributeValues(Map.of(
-                ":cid",     AttributeValue.fromS(courseId),
-                ":applied", AttributeValue.fromS("APPLIED")))
-            .build());
         var now = Instant.now().toString();
-        for (var item : resp.items()) {
-            dynamo.updateItem(UpdateItemRequest.builder()
+        int count = 0;
+        Map<String, AttributeValue> lastKey = null;
+        do {
+            var builder = QueryRequest.builder()
                 .tableName(applicationsTable)
-                .key(Map.of("userId",   item.get("userId"),
-                            "courseId", item.get("courseId")))
-                .updateExpression("SET #s = :withdrawn, updatedAt = :now")
+                .indexName("courseId-index")
+                .keyConditionExpression("courseId = :cid")
+                .filterExpression("#s = :applied")
                 .expressionAttributeNames(Map.of("#s", "status"))
                 .expressionAttributeValues(Map.of(
-                    ":withdrawn", AttributeValue.fromS("WITHDRAWN"),
-                    ":now",       AttributeValue.fromS(now)))
-                .build());
-        }
-        return resp.count();
+                    ":cid",     AttributeValue.fromS(courseId),
+                    ":applied", AttributeValue.fromS("APPLIED")));
+            if (lastKey != null) builder.exclusiveStartKey(lastKey);
+            var resp = dynamo.query(builder.build());
+            for (var item : resp.items()) {
+                dynamo.updateItem(UpdateItemRequest.builder()
+                    .tableName(applicationsTable)
+                    .key(Map.of("userId",   item.get("userId"),
+                                "courseId", item.get("courseId")))
+                    .updateExpression("SET #s = :withdrawn, updatedAt = :now")
+                    .expressionAttributeNames(Map.of("#s", "status"))
+                    .expressionAttributeValues(Map.of(
+                        ":withdrawn", AttributeValue.fromS("WITHDRAWN"),
+                        ":now",       AttributeValue.fromS(now)))
+                    .build());
+            }
+            count += resp.count();
+            lastKey = resp.lastEvaluatedKey().isEmpty() ? null : resp.lastEvaluatedKey();
+        } while (lastKey != null);
+        return count;
     }
 
     private float[] embed(ScrapedCourse course, String modelId) {
