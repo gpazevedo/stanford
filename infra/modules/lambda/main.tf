@@ -48,6 +48,7 @@ resource "aws_lambda_function" "ingestion" {
   image_uri     = var.ingestion_image_uri
   timeout       = 300
   memory_size   = 512
+  publish       = true
 
   environment {
     variables = {
@@ -61,6 +62,13 @@ resource "aws_lambda_function" "ingestion" {
   tracing_config {
     mode = "Active"
   }
+}
+
+resource "aws_lambda_alias" "ingestion_prod" {
+  count            = var.ingestion_image_uri != "" ? 1 : 0
+  name             = "prod"
+  function_name    = aws_lambda_function.ingestion[0].function_name
+  function_version = aws_lambda_function.ingestion[0].version
 }
 
 # Post-Confirmation Lambda
@@ -97,7 +105,8 @@ data "archive_file" "admin_authorizer" {
 
       const REGION = process.env.AWS_REGION;
       const USER_POOL_ID = process.env.USER_POOL_ID;
-      const JWKS_URI = `https://cognito-idp.$${REGION}.amazonaws.com/$${USER_POOL_ID}/.well-known/jwks.json`;
+      const EXPECTED_ISS = `https://cognito-idp.$${REGION}.amazonaws.com/$${USER_POOL_ID}`;
+      const JWKS_URI = `$${EXPECTED_ISS}/.well-known/jwks.json`;
 
       let cachedKeys = null;
 
@@ -134,6 +143,12 @@ data "archive_file" "admin_authorizer" {
 
           // Check expiry
           if (payload.exp < Math.floor(Date.now() / 1000)) return { isAuthorized: false };
+
+          // Check issuer
+          if (payload.iss !== EXPECTED_ISS) return { isAuthorized: false };
+
+          // Check token_use
+          if (payload.token_use !== "access" && payload.token_use !== "id") return { isAuthorized: false };
 
           // Check admins group
           const groups = payload["cognito:groups"] || [];
