@@ -1,0 +1,21 @@
+# amplify.yml
+# Uses Amplify Hosting SSR (Next.js server-side rendering) because the
+# /courses/[courseId] dynamic route fetches data client-side at runtime
+# and cannot provide generateStaticParams for a fully static export.
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - npm ci
+    build:
+      commands:
+        - npm run build
+  artifacts:
+    baseDirectory: .next
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - node_modules/**/*
+      - .next/cache/**/*
