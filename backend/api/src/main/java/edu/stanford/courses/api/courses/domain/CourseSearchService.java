@@ -50,8 +50,9 @@ public class CourseSearchService {
 
         var ids = vectorResults.stream().map(QueryOutputVector::key).collect(Collectors.toSet());
         var courses = courseRepo.findAllByIds(ids);
-        var appliedIds = appRepo.findAppliedByUser(userId).stream()
-            .map(Application::courseId).collect(Collectors.toSet());
+        var appliedIds = userId != null
+            ? appRepo.findAppliedByUser(userId).stream().map(Application::courseId).collect(Collectors.toSet())
+            : Collections.<String>emptySet();
 
         return vectorResults.stream()
             .map(r -> courses.get(r.key()))
@@ -67,10 +68,11 @@ public class CourseSearchService {
             .map(a -> "APPLIED".equals(a.status())).orElse(false);
         var prereqs = course.prerequisites().stream().map(prereqId -> {
             var prereqCourse = courseRepo.findById(prereqId);
+            var completed = user != null ? user.completedCourseIds() : List.<String>of();
             return new CourseDetailResponse.PrereqStatus(
                 prereqId,
                 prereqCourse.map(Course::title).orElse(prereqId),
-                user.completedCourseIds().contains(prereqId));
+                completed.contains(prereqId));
         }).toList();
         var canApply = prereqs.stream().allMatch(CourseDetailResponse.PrereqStatus::met);
         return new CourseDetailResponse(course.courseId(), course.title(), course.description(),
@@ -89,8 +91,9 @@ public class CourseSearchService {
     }
 
     private CourseSearchResponse toSearchResponse(Course c, User user, Set<String> appliedIds) {
+        var completed = user != null ? user.completedCourseIds() : List.<String>of();
         var missing = c.prerequisites().stream()
-            .filter(p -> !user.completedCourseIds().contains(p)).toList();
+            .filter(p -> !completed.contains(p)).toList();
         return new CourseSearchResponse(c.courseId(), c.title(), c.units(),
             missing.isEmpty(), missing, appliedIds.contains(c.courseId()));
     }
