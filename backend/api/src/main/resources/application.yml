@@ -1,0 +1,20 @@
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: >
+            https://cognito-idp.${AWS_REGION:us-east-1}.amazonaws.com/${COGNITO_USER_POOL_ID}/.well-known/jwks.json
+
+aws:
+  region: ${AWS_REGION:us-east-1}
+  appconfig:
+    app:     ${APPCONFIG_APP:stanford-courses}
+    env:     ${APPCONFIG_ENV:prod}
+    profile: ${APPCONFIG_PROFILE:settings}
+  tables:
+    courses:      ${COURSES_TABLE:courses}
+    applications: ${APPLICATIONS_TABLE:applications}
+    users:        ${USERS_TABLE:users}
+  vectors:
+    index: ${VECTOR_INDEX:course-embeddings}
