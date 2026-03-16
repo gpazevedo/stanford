@@ -10,8 +10,8 @@ terraform {
     }
   }
 
+  # bucket supplied at init time via init.sh (or -backend-config flag)
   backend "s3" {
-    bucket       = "stanford-courses-tfstate-<your-account-id>"
     key          = "prod/terraform.tfstate"
     region       = "us-east-1"
     encrypt      = true
