@@ -11,4 +11,4 @@ alarm_email         = "you@example.com"
 # aws_region           = "us-east-1"
 # environment          = "prod"
 # github_branch        = "main"
-# create_oidc_provider = true   # set false if GitHub OIDC provider already exists in this AWS account
+# create_oidc_provider = false  # uncomment if your account already has a GitHub OIDC provider (EntityAlreadyExists error)
