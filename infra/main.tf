@@ -127,6 +127,7 @@ module "observability" {
   source       = "./modules/observability"
   project_name = var.project_name
   environment  = var.environment
+  aws_region   = var.aws_region
 
   alarm_email           = var.alarm_email
   api_lambda_name       = module.lambda.api_function_name

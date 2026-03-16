@@ -208,9 +208,10 @@ resource "aws_cloudwatch_dashboard" "main" {
         width  = 12
         height = 6
         properties = {
-          title  = "API Lambda — Invocations & Errors"
-          period = 300
-          stat   = "Sum"
+          title   = "API Lambda — Invocations & Errors"
+          region  = var.aws_region
+          period  = 300
+          stat    = "Sum"
           metrics = [
             ["AWS/Lambda", "Invocations", "FunctionName", var.api_lambda_name],
             ["AWS/Lambda", "Errors", "FunctionName", var.api_lambda_name]
@@ -222,11 +223,13 @@ resource "aws_cloudwatch_dashboard" "main" {
         width  = 12
         height = 6
         properties = {
-          title  = "API Lambda — P50/P99 Duration"
-          period = 300
+          title   = "API Lambda — P50/P99 Duration"
+          region  = var.aws_region
+          period  = 300
+          stat    = "p99"
           metrics = [
-            [{ expression = "SELECT PERCENTILE(Duration, 50) FROM SCHEMA(\"AWS/Lambda\", FunctionName) WHERE FunctionName = '${var.api_lambda_name}'", label = "P50", id = "p50" }],
-            [{ expression = "SELECT PERCENTILE(Duration, 99) FROM SCHEMA(\"AWS/Lambda\", FunctionName) WHERE FunctionName = '${var.api_lambda_name}'", label = "P99", id = "p99" }]
+            ["AWS/Lambda", "Duration", "FunctionName", var.api_lambda_name, { stat = "p50", label = "P50" }],
+            ["AWS/Lambda", "Duration", "FunctionName", var.api_lambda_name, { stat = "p99", label = "P99" }]
           ]
         }
       },
@@ -235,9 +238,10 @@ resource "aws_cloudwatch_dashboard" "main" {
         width  = 12
         height = 6
         properties = {
-          title  = "API Gateway — Requests & 5xx"
-          period = 300
-          stat   = "Sum"
+          title   = "API Gateway — Requests & Errors"
+          region  = var.aws_region
+          period  = 300
+          stat    = "Sum"
           metrics = [
             ["AWS/ApiGateway", "Count", "ApiId", var.api_gateway_id],
             ["AWS/ApiGateway", "5XXError", "ApiId", var.api_gateway_id],
@@ -250,9 +254,10 @@ resource "aws_cloudwatch_dashboard" "main" {
         width  = 12
         height = 6
         properties = {
-          title  = "Ingestion Lambda — Invocations & Errors"
-          period = 300
-          stat   = "Sum"
+          title   = "Ingestion Lambda — Invocations & Errors"
+          region  = var.aws_region
+          period  = 300
+          stat    = "Sum"
           metrics = [
             ["AWS/Lambda", "Invocations", "FunctionName", var.ingestion_lambda_name],
             ["AWS/Lambda", "Errors", "FunctionName", var.ingestion_lambda_name],
@@ -265,9 +270,10 @@ resource "aws_cloudwatch_dashboard" "main" {
         width  = 12
         height = 6
         properties = {
-          title  = "DynamoDB — Consumed Read Capacity Units"
-          period = 300
-          stat   = "Sum"
+          title   = "DynamoDB — Consumed Read Capacity Units"
+          region  = var.aws_region
+          period  = 300
+          stat    = "Sum"
           metrics = [
             ["AWS/DynamoDB", "ConsumedReadCapacityUnits", "TableName", var.courses_table_name],
             ["AWS/DynamoDB", "ConsumedReadCapacityUnits", "TableName", var.applications_table_name],
@@ -280,9 +286,10 @@ resource "aws_cloudwatch_dashboard" "main" {
         width  = 12
         height = 6
         properties = {
-          title  = "DynamoDB — Consumed Write Capacity Units"
-          period = 300
-          stat   = "Sum"
+          title   = "DynamoDB — Consumed Write Capacity Units"
+          region  = var.aws_region
+          period  = 300
+          stat    = "Sum"
           metrics = [
             ["AWS/DynamoDB", "ConsumedWriteCapacityUnits", "TableName", var.courses_table_name],
             ["AWS/DynamoDB", "ConsumedWriteCapacityUnits", "TableName", var.applications_table_name],
