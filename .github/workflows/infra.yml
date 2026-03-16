@@ -39,7 +39,7 @@ jobs:
           terraform_version: ${{ env.TF_VERSION }}
 
       - name: Terraform Init
-        run: terraform init
+        run: bash init.sh
 
       - name: Terraform Validate
         run: terraform validate
@@ -91,7 +91,7 @@ jobs:
           terraform_version: ${{ env.TF_VERSION }}
 
       - name: Terraform Init
-        run: terraform init
+        run: bash init.sh
 
       - name: Terraform Apply
         run: terraform apply -auto-approve
