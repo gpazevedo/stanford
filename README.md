@@ -54,29 +54,29 @@ npm test                      # Vitest unit tests
 
 ## Infrastructure
 
-See [`infra/infra.md`](infra/infra.md) for full setup guide.
+See [`infra/INFRA.md`](infra/INFRA.md) for the full setup guide.
 
 **Quick start:**
 
 ```bash
 cp infra/terraform.tfvars.example infra/terraform.tfvars
-# fill in github_owner, github_repo, github_access_token, alarm_email
+# fill in github_owner, github_org, github_repo, github_access_token, alarm_email
 
 cd infra
-bash init.sh        # creates S3 state bucket, runs terraform init
+bash init.sh        # creates S3 state bucket + ECR placeholder images, runs terraform init
 terraform apply
 ```
 
-After apply, set the CI role secret:
+After apply, set the GitHub secrets required by CI:
 
 ```bash
-gh secret set AWS_OIDC_ROLE_ARN \
-  --repo <owner>/stanford \
-  --body "$(terraform output -raw ci_role_arn)"
+gh secret set AWS_OIDC_ROLE_ARN    --repo <owner>/stanford --body "$(terraform output -raw ci_role_arn)"
+gh secret set ALARM_EMAIL          --repo <owner>/stanford --body "you@example.com"
+gh secret set AMPLIFY_GITHUB_TOKEN --repo <owner>/stanford --body "github_pat_xxxx..."
 ```
 
 ## CI/CD
 
 Workflows trigger automatically on path-filtered push/PR events. Frontend is auto-deployed by Amplify on every push to `main` — no workflow needed.
 
-The `AWS_OIDC_ROLE_ARN` GitHub secret must be set before workflows can authenticate to AWS (see infra setup above).
+Three GitHub secrets must be set before workflows can run: `AWS_OIDC_ROLE_ARN`, `ALARM_EMAIL`, `AMPLIFY_GITHUB_TOKEN` (see infra setup above).

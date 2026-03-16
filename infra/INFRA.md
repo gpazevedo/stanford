@@ -94,16 +94,24 @@ terraform apply
 
 ### After Apply
 
-Retrieve the outputs and configure GitHub Actions:
+**1. Set the CI role ARN** so GitHub Actions can authenticate to AWS:
 
 ```bash
-# Add the CI role ARN as a GitHub secret
 gh secret set AWS_OIDC_ROLE_ARN \
   --repo your-github-username/stanford \
   --body "$(terraform output -raw ci_role_arn)"
 ```
 
+**2. Set the remaining GitHub secrets** required by the infra workflow:
+
+```bash
+gh secret set ALARM_EMAIL          --repo your-github-username/stanford --body "you@example.com"
+gh secret set AMPLIFY_GITHUB_TOKEN --repo your-github-username/stanford --body "github_pat_xxxx..."
+```
+
 The Amplify app is connected to GitHub automatically. The first deploy triggers on the next push to `main` in `frontend/`.
+
+> **Stale state lock?** If a previous CI run was interrupted, unlock with `terraform force-unlock <LOCK_ID>`. The lock ID is printed in the error message.
 
 ## GitHub Token
 
