@@ -1,0 +1,14 @@
+# Copy to terraform.tfvars and fill in your values
+# terraform.tfvars is excluded from git — never commit secrets
+
+github_owner        = "your-github-username"
+github_org          = "your-github-username"   # same as github_owner for personal accounts
+github_repo         = "stanford"
+github_access_token = "github_pat_xxxx..."     # fine-grained PAT: Contents read + Webhooks read/write
+alarm_email         = "you@example.com"
+
+# Optional — defaults shown
+# aws_region           = "us-east-1"
+# environment          = "prod"
+# github_branch        = "main"
+# create_oidc_provider = true   # set false if GitHub OIDC provider already exists in this AWS account
