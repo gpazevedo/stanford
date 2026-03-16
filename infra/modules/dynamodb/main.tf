@@ -1,7 +1,7 @@
 resource "aws_dynamodb_table" "courses" {
-  name           = "${var.project_name}-${var.environment}-courses"
-  billing_mode   = "PAY_PER_REQUEST"
-  hash_key       = "courseId"
+  name         = "${var.project_name}-${var.environment}-courses"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "courseId"
 
   attribute {
     name = "courseId"
@@ -18,10 +18,10 @@ resource "aws_dynamodb_table" "courses" {
 }
 
 resource "aws_dynamodb_table" "applications" {
-  name           = "${var.project_name}-${var.environment}-applications"
-  billing_mode   = "PAY_PER_REQUEST"
-  hash_key       = "userId"
-  range_key      = "courseId"
+  name         = "${var.project_name}-${var.environment}-applications"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "userId"
+  range_key    = "courseId"
 
   attribute {
     name = "userId"
@@ -49,9 +49,9 @@ resource "aws_dynamodb_table" "applications" {
 }
 
 resource "aws_dynamodb_table" "users" {
-  name           = "${var.project_name}-${var.environment}-users"
-  billing_mode   = "PAY_PER_REQUEST"
-  hash_key       = "userId"
+  name         = "${var.project_name}-${var.environment}-users"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "userId"
 
   attribute {
     name = "userId"

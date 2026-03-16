@@ -7,8 +7,6 @@ locals {
 # Note: SnapStart is not supported for container image Lambdas (package_type = "Image")
 # API Lambda
 resource "aws_lambda_function" "api" {
-  count = var.api_image_uri != "" ? 1 : 0
-
   function_name = "${var.project_name}-${var.environment}-api"
   role          = aws_iam_role.api.arn
   package_type  = "Image"
@@ -32,16 +30,13 @@ resource "aws_lambda_function" "api" {
 }
 
 resource "aws_lambda_alias" "api_prod" {
-  count            = var.api_image_uri != "" ? 1 : 0
   name             = "prod"
-  function_name    = aws_lambda_function.api[0].function_name
-  function_version = aws_lambda_function.api[0].version
+  function_name    = aws_lambda_function.api.function_name
+  function_version = aws_lambda_function.api.version
 }
 
 # Ingestion Lambda
 resource "aws_lambda_function" "ingestion" {
-  count = var.ingestion_image_uri != "" ? 1 : 0
-
   function_name = "${var.project_name}-${var.environment}-ingestion"
   role          = aws_iam_role.ingestion.arn
   package_type  = "Image"
@@ -65,16 +60,13 @@ resource "aws_lambda_function" "ingestion" {
 }
 
 resource "aws_lambda_alias" "ingestion_prod" {
-  count            = var.ingestion_image_uri != "" ? 1 : 0
   name             = "prod"
-  function_name    = aws_lambda_function.ingestion[0].function_name
-  function_version = aws_lambda_function.ingestion[0].version
+  function_name    = aws_lambda_function.ingestion.function_name
+  function_version = aws_lambda_function.ingestion.version
 }
 
 # Post-Confirmation Lambda
 resource "aws_lambda_function" "post_confirmation" {
-  count = var.post_confirmation_image_uri != "" ? 1 : 0
-
   function_name = "${var.project_name}-${var.environment}-post-confirmation"
   role          = aws_iam_role.post_confirmation.arn
   package_type  = "Image"
@@ -86,10 +78,9 @@ resource "aws_lambda_function" "post_confirmation" {
 
 # Cognito permission to invoke post-confirmation Lambda
 resource "aws_lambda_permission" "cognito_post_confirmation" {
-  count         = var.post_confirmation_image_uri != "" ? 1 : 0
   statement_id  = "AllowCognitoInvoke"
   action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.post_confirmation[0].function_name
+  function_name = aws_lambda_function.post_confirmation.function_name
   principal     = "cognito-idp.amazonaws.com"
   source_arn    = var.user_pool_arn
 }
