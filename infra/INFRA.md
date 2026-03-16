@@ -81,11 +81,16 @@ create_oidc_provider = true   # set false if OIDC provider already exists in the
 
 ```bash
 cd infra
-bash init.sh          # creates S3 state bucket if absent, runs terraform init
+bash init.sh          # creates S3 state bucket + placeholder ECR images if absent, runs terraform init
 terraform apply
 ```
 
-`init.sh` auto-detects your account ID via `aws sts get-caller-identity`, creates the state bucket `stanford-courses-tfstate-<account-id>` with versioning, and passes it to `terraform init -backend-config`.
+`init.sh` does three things automatically:
+1. Creates the S3 state bucket `stanford-courses-tfstate-<account-id>` with versioning if it doesn't exist
+2. Pushes a minimal placeholder image (`public.ecr.aws/lambda/provided:al2`) to each ECR repo if empty — Lambda requires a valid image URI at creation time; CI/CD replaces these on the first backend deploy
+3. Runs `terraform init -backend-config="bucket=..."`
+
+> **OIDC provider already exists?** If your AWS account already has a GitHub OIDC provider, add `create_oidc_provider = false` to `terraform.tfvars` before applying.
 
 ### After Apply
 
